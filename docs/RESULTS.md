@@ -31,3 +31,8 @@ presented as real-bus compliance.
 Zephyr wrapper prepared under `tests/zephyr/`: two ztest cases reuse the native
 C assertion bodies. Root queued Twister `native_sim/native/64` through the bend
 lock and8GiB/400% systemd scope. Result pending; queued is not passed.
+
+The first firmware compile uses HPF developer mode only to generate the initial
+HRT assembly. Firmware acceptance additionally requires installing/freezing the
+SoC assembly snapshot, setting `CONFIG_HPF_DEVELOPER_MODE=n`, and passing the
+strict assembly-check rebuild. Neither stage has yet returned a result.
