@@ -11,7 +11,7 @@ has been verified.** Hardware entries below are pending, not passes.
 | DK connection and supply | No DK shown in takeover lsusb; no connected confirmation | Pending user |
 | Portable protocol codec | Initial native O2 run: 417,547 checks passed; sanitizer build exposed a CRC5 sign-conversion warning, now fixed with explicit unsigned promotion; sanitizer/reference continuation queued | Native pass; remaining validation pending |
 | Device transaction simulation | C simulation implemented; shared native/ztest assertion suites prepared | Validation pending |
-| NCS app/FLPR build | HPF TX and known-schedule external-pad sample fixture implemented; first sysbuild queued | Build/runtime validation pending |
+| NCS app/FLPR build | First build linked FLPR; app link failed on incompatible HFXO device API. Switched to legacy HF onoff manager; HRT snapshot installed and developer mode disabled; strict rebuild queued | Full build/runtime validation pending |
 | Capture analysis tool tests | Five offline synthetic unit tests pass; includes malformed/empty decode rejection and SYNC frequency-offset measurement | Pass, tooling only |
 | LS bit rate | Target1.5Mbit/s, nominal666.667ns/bit; device rate tolerance±1.5% | Not measured |
 | FS bit rate | Target12Mbit/s, nominal83.333ns/bit; source rate tolerance±0.25% | Not measured; experimental |
@@ -43,3 +43,16 @@ Initial host-run evidence: `w-t1792083644-131411-132105` passed the native
 compile-time diagnostic, not an ASan/UBSan runtime finding. The explicit
 unsigned-promotion fix is awaiting sanitizer/reference continuation; no
 sanitizer or differential pass has been claimed.
+
+Native_sim first run `w-t1792082209-129711-132190` exited1 at compilation:
+`ZTEST(softusb, test_codec)` generated a static `softusb_test_codec` symbol
+that collided with the exported shared suite body. No ztest cases executed.
+Renamed the ztest suite to `softusb_portable`, preserving the shared assertions;
+one rebuild is queued. The earlier watcher timeout was followed by a normal
+exit report; no duplicate run or lock bypass was used.
+
+Firmware first build: FLPR linked; app-core HFXO device reference did not link.
+The nRF54L implementation now requests HF through
+`z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF)` and
+`onoff_request()`. Generated HRT assembly was reviewed and installed with
+the NCS helper; developer mode is now disabled. Strict build02 result pending.
