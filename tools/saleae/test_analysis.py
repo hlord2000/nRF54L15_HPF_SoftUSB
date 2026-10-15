@@ -40,6 +40,11 @@ class AnalysisTests(unittest.TestCase):
         analog=device_config(0,100_000_000)
         self.assertEqual(len(analog.scope_channels),2)
         self.assertEqual(analog.scope_channels[0].analog.probe_attenuation,10)
+        loop=device_config(0,0,1)
+        self.assertEqual(len(loop.digital_probes),2)
+        self.assertEqual([c.index for c in loop.digital_probes[0].channels],[0,1,2,3])
+        self.assertEqual(loop.digital_probes[1].channels[0].index,0)
+        with self.assertRaises(ValueError): device_config(0,0,0)
 
 
 if __name__=='__main__':

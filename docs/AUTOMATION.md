@@ -115,3 +115,10 @@ an electrical compliance verdict.
 Preview wheel SHA256:
 `a906116ec156f4c44cfd1cb650ad1cb5ff17aa03434549ebde454bfc3e683522`.
 The pinned download is also recorded in `tools/saleae/requirements.txt`.
+
+For simultaneous five-signal loopback observation with two four-channel smart
+probes, add `--rx-probe-port 1`: source DP/DM/marker stay on primary D0/D1/D2,
+RX_DP uses primary D3, and RX_DM uses secondary D0. The two probe-port indices
+must differ. A single four-channel smart probe has no D4. Without a second
+probe, record source and return in separate acquisitions as documented in
+WIRING.md. Loopback observation remains optional and unverified.
