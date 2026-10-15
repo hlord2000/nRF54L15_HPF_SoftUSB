@@ -2,6 +2,8 @@
 
 Checked 2026-10-15. Target: nRF54L15 DK / NCS **v3.4.1**, with an LS peripheral as the accepted primary goal. FS and host remain stretch work. This is source research and calculated timing, **not measured hardware results**. Physical PCA10156 revision, routing state, VDDIO and user wiring confirmation remain unknown. Bench results belong in `RESULTS.md`.
 
+Hardware reservation: DK debugger serials `1057720622` and `1057776754`, plus the Android phone, belong exclusively to the closed-loop BLE project. Continue software/research only until ownership is explicitly released. Do not flash/reset either DK or open debug/serial sessions; a `connected` reply alone does not release this reservation. Do not stop Saleae or unrelated hardware.
+
 ## Release and framework verification
 
 Nordic's official GitHub release page and releases/latest API both identify **v3.4.1** as the latest published release at this check, published 2026-09-17. The installed `nrf` checkout describes itself as `v3.4.1`, commit `b20f8619ba9a5530f8c34b0a130d829947cfe55d`; `VERSION` says 3.4.1 with `VERSION_METADATA = lts`. Installed Zephyr identifies as `ncs-v3.4.1`. A website labeled `latest` currently renders development **3.4.99**, so it must not silently define this project's APIs. [Nordic release](https://github.com/nrfconnect/sdk-nrf/releases/tag/v3.4.1), [release API](https://api.github.com/repos/nrfconnect/sdk-nrf/releases/latest), [tagged VERSION](https://github.com/nrfconnect/sdk-nrf/blob/v3.4.1/VERSION).
@@ -44,6 +46,12 @@ nrf_vpr_csr_vio_in_get();
 Counter modes include STOP, WRAP, RELOAD and TRIGGER_COMBINED. Wait writes stall the CPU until the corresponding event. Counter-zero/reload behavior and instruction placement must be included in an edge schedule; a delay argument is not automatically a pad-to-pad bit period. Inspect assembly and measure the generated stream before assigning timing capability. [Tagged RT-peripheral guide](https://github.com/nrfconnect/sdk-nrf/blob/v3.4.1/doc/nrf/app_dev/device_guides/coprocessors/rt_peripherals.rst), [VTIM HAL at installed revision](https://github.com/nrfconnect/sdk-hal_nordic/blob/69865c20dc4afbdd27060ad1e81af1b62d31f7af/nrfx/hal/nrf_vpr_csr_vtim.h).
 
 Request and retain HFXO on the application core before arming the fixture. Nordic describes XOSTART -> crystal locking -> XOSTARTED, followed by final XOTUNED; HFINT is the free-running PLL alternative. HFXO improves frequency accuracy but does not remove edge quantization or pad delay. Read `PLL.CURRENTFREQ` and clock status, record the request, and validate a marker against an independent timebase. A 64-million-cycle example is not evidence that every FLPR configuration runs at 64 MHz. [HFCLK controller](https://docs.nordicsemi.com/r/bundle/ps_nrf54l15/page/clock.html-concept_rp5_fgp_bs).
+
+The implemented app-core request now uses the NCS legacy on/off API: `z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF)` followed by `onoff_request()`, with completion notification and a lifetime-held request. The corrected API compiles in the saved strict build; startup success and clock accuracy have not been observed on hardware. See [firmware source](../firmware/src/main.c) and [saved build status](../firmware/build-evidence/build-status.json).
+
+## Saved software-build evidence
+
+The firmware helper completed app-core and FLPR sysbuild with strict NCS HPF assembly checking and developer mode disabled. [Build status](../firmware/build-evidence/build-status.json) records exit code 0, pinned SDK/toolchain and source/artifact hashes; [strict build log](../firmware/build-evidence/build-02-strict.log) records app FLASH 62,532 B / RAM 17,664 B and FLPR SRAM 7,264 B. Linked FLPR entry is `0x20028000`, load address `0x00165000`. Research review independently matched the recorded hashes and checked HEX checksums, partition bounds and non-overlap, without building, flashing or opening hardware sessions. Saved disassembly documents generated instructions; timing, external loopback and runtime remain unvalidated. ABI, pins and configuration are unchanged.
 
 ## VIO mapping and ownership
 

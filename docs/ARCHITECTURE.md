@@ -1,6 +1,8 @@
 # SoftUSB architecture and verification boundaries
 
-Status: 2026-10-15 design plus source inspection. **LS peripheral first; FS and host stretch only.** The present target is an isolated bench fixture. Protocol correctness precedes enumeration. No physical wiring confirmation, flash, real-host attachment or measured timing is claimed by this document. See `RESEARCH.md` for primary evidence, `WIRING.md` for exact revision-gated connections and `RESULTS.md` for the root thread's test record.
+Status: 2026-10-15 design, source inspection and saved strict-build evidence. **LS peripheral first; FS and host stretch only.** The present target is an isolated bench fixture. Protocol correctness precedes enumeration. No physical wiring confirmation, flash, real-host attachment or measured timing is claimed by this document. See `RESEARCH.md` for primary evidence, `WIRING.md` for exact revision-gated connections and `RESULTS.md` for the root thread's test record.
+
+Hardware reservation: DK debugger serials `1057720622` and `1057776754`, plus the Android phone, belong exclusively to the closed-loop BLE project. Continue software/research only until ownership is explicitly released. Do not flash/reset either DK or open debug/serial sessions; a `connected` reply alone does not release this reservation. Do not stop Saleae or unrelated hardware.
 
 ## Execution split
 
@@ -25,11 +27,11 @@ Current source ABI is **1**, magic `0x53554231`, maximum **1024 cells**. A cell 
 
 ## Implemented versus planned
 
-This is a moving integration snapshot, not build certification. Research helper inspected these source files read-only; final build/test claims come from their owners.
+Both images **PASS** the NCS v3.4.1 sysbuild and strict HPF assembly equality check with `CONFIG_HPF_DEVELOPER_MODE=n`. Saved evidence is [build-status.json](../firmware/build-evidence/build-status.json), [build-02-strict.log](../firmware/build-evidence/build-02-strict.log), and the [TX](../firmware/build-evidence/hrt-tx-disassembly.txt) / [sampling](../firmware/build-evidence/hrt-sample-disassembly.txt) disassembly. Recorded at 2026-10-15 18:32 UTC: app FLASH **62,532 B**, app RAM **17,664 B**, FLPR SRAM **7,264 B**. FLPR ELF entry is `0x20028000` and its load address is `0x00165000`. Research review independently matched the recorded source/artifact SHA-256 hashes, inspected the linked entry/load address, and checked HEX record checksums, partition bounds and non-overlap; it did not rebuild or operate hardware. Strict assembly equality establishes a reproducible checked assembly artifact, not cycle timing, pad timing or protocol correctness on hardware.
 
 | Layer | Source observed in this work | What that does not establish |
 | --- | --- | --- |
-| Bench IPC | `firmware/include/bench_ipc.h`: versioned fixed-width shared block, ARM/DISARM/TX commands, explicit key, cells and sample buffers | Runtime startup, placement or a functioning cross-core transfer |
+| Bench IPC | `firmware/include/bench_ipc.h`: versioned fixed-width shared block, ARM/DISARM/TX commands, explicit key, cells and sample buffers | Runtime startup or a functioning cross-core transfer |
 | HRT transmitter | `firmware/flpr/src/hrt/hrt.c`: paired direct OUT CSR, CNT0 schedule, direction release, optional LS input samples | Measured bit periods, first/last-cell correctness, jitter or electrical safety under all faults |
 | Pin assignments | DP VIO4, DM VIO0, marker VIO1; RX VIO3/VIO2 | Header routing, measured voltage or physical loopback |
 | Portable protocol | Concurrent work owns `common/` and `tests/`; its final report is authoritative | An asynchronous hardware receiver or a live USB transaction engine |

@@ -1,8 +1,12 @@
 # Bench wiring: nRF54L15 DK SoftUSB
 
-**Status 2026-10-15: physical PCA10156 revision UNKNOWN; no `connected` confirmation has been received. Do not flash yet.** This plan covers isolated GPIO waveform/loopback tests. Do not attach generated DP/DM to a real USB host. The DK debugger USB connector J3 is not the emulated USB port.
+**Status 2026-10-15: physical PCA10156 revision UNKNOWN; no `connected` confirmation has been received. Do not flash.**
 
-This document specifies a proposed wiring plan, not a record that wires or Board Configurator settings have been applied. The root thread owns hardware operation and Saleae captures. See `RESEARCH.md` for timing/electrical rationale and `RESULTS.md` for actual observations.
+Hardware reservation: DK debugger serials `1057720622` and `1057776754`, plus the Android phone, belong exclusively to the closed-loop BLE project. Continue software/research only until ownership is explicitly released. Do not flash/reset either DK or open debug/serial sessions; a `connected` reply alone does not release this reservation. Do not stop Saleae or unrelated hardware.
+
+This plan covers isolated GPIO waveform/loopback tests. Do not attach generated DP/DM to a real USB host. The DK debugger USB connector J3 is not the emulated USB port.
+
+Both images now pass the saved strict NCS HPF build with developer mode disabled ([build evidence](../firmware/build-evidence/build-status.json)); no runtime, hardware or loopback result follows from that build. ABI/pins/configuration are unchanged. This document specifies a proposed wiring plan, not a record that wires or Board Configurator settings have been applied. The root thread owns hardware operation and Saleae captures. See `RESEARCH.md` for timing/electrical rationale and `RESULTS.md` for actual observations.
 
 ## Identify the board and route the header first
 
@@ -103,4 +107,4 @@ Reserve SERIAL21 on the app core and the following P1 positions. Clock pins P1.1
 
 TWIM21 and SPIM21 share SERIAL21 base/IRQ and are **alternatives**, not simultaneous independent peripherals. Start I2C at a controller-supported rate; choose its pull-ups from bus capacitance and sink-current limits, counting any existing module pulls. No pull-up resistor value or module IO voltage is assumed. A controller with a 1.8 V-only interface needs compatible translation even when the DK is at 3.3 V. No CC1, CC2, VCONN, raw VBUS or negotiated voltage connects to these pins. [NCS board pinctrl](https://github.com/nrfconnect/sdk-zephyr/blob/ncs-v3.4.1/boards/nordic/nrf54l15dk/nrf54l15dk_nrf54l_05_10_15-pinctrl.dtsi), [official DK schematic](https://www.nordicsemi.com/Products/Development-hardware/nRF54L15-DK/Hardware-files).
 
-Before first flash, the root thread must present the revision-matched final wiring and receive the user's exact **`connected`** confirmation. No confirmation, power measurement, solder change or hardware connection is inferred by this document.
+Before first flash, hardware ownership must be explicitly released; then the root thread must present the revision-matched final wiring and receive the user's exact **`connected`** confirmation. A `connected` reply by itself does not override the hardware reservation. No confirmation, power measurement, solder change or hardware connection is inferred by this document.
