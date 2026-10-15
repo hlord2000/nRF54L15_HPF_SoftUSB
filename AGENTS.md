@@ -1,5 +1,7 @@
 # SoftUSB project agreements
 
+- Hardware reservation (Bub, 2026-10-15): DK debugger serials `1057720622` and `1057776754`, plus the Android phone, belong exclusively to the new closed-loop BLE project. Do not flash/reset either DK or open exclusive debug/serial sessions. Continue software/research only until that ownership is explicitly released. A `connected` reply alone does not override this reservation. Do not stop Saleae or unrelated hardware. SoftUSB held no debug/serial sessions or queued hardware jobs at handoff.
+
 - Read `/home/h/.codex/AGENTS.md` and preserve the user's original hardware interlocks.
 - Target NCS v3.4.1 at `/home/h/ncs/v3.4.1`. USB LS peripheral is the primary goal; FS and host are experimental stretch work.
 - Before any first flash: give exact revision-appropriate wiring, and wait for the user's explicit `connected` confirmation. Do not infer it from USB enumeration or a helper report. No confirmation has been received as of 2026-10-15 takeover.

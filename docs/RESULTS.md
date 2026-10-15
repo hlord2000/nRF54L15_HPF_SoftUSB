@@ -56,3 +56,10 @@ The nRF54L implementation now requests HF through
 `z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF)` and
 `onoff_request()`. Generated HRT assembly was reviewed and installed with
 the NCS helper; developer mode is now disabled. Strict build02 result pending.
+
+Hardware reservation update: Bub assigned both attached DKs (debugger serials
+`1057720622` and `1057776754`) and the Android phone to another BLE project.
+SoftUSB holds no debug/serial sessions and has no queued hardware job to cancel.
+Only software build/test jobs remain queued. No flash/reset/debug/serial access
+is permitted until that ownership is explicitly released; the first-flash
+`connected` interlock still applies afterward. Saleae was not stopped.
