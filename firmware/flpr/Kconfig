@@ -1,0 +1,4 @@
+config HPF_DEVELOPER_MODE
+    bool "Permit regenerated HPF assembly during development"
+    default n
+source "Kconfig.zephyr"

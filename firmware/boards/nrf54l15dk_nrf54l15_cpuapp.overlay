@@ -1,0 +1,59 @@
+/* App 144 KiB, IPC 16 KiB, FLPR 96 KiB. No overlap. */
+/ {
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+        softusb_ipc: memory@20024000 { reg = <0x20024000 0x4000>; };
+    };
+    soc {
+        softusb_flpr_ram: memory@20028000 {
+            compatible = "mmio-sram";
+            reg = <0x20028000 0x18000>;
+        };
+    };
+};
+&cpuapp_sram { reg = <0x20000000 0x24000>; ranges = <0 0x20000000 0x24000>; };
+&cpuapp_rram {
+    reg = <0 0x165000>;
+    ranges = <0 0 0x165000>;
+    /delete-node/ partitions;
+    partitions {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        softusb_app_code: partition@0 {
+            compatible = "zephyr,mapped-partition";
+            label = "image-0";
+            reg = <0 0x165000>;
+        };
+    };
+};
+/ { chosen { zephyr,code-partition = &softusb_app_code; }; };
+&rram_controller {
+    softusb_flpr_flash: rram@165000 {
+        compatible = "soc-nv-flash";
+        reg = <0x165000 0x18000>;
+        erase-block-size = <4096>;
+        write-block-size = <16>;
+    };
+};
+&cpuflpr_vpr {
+    status = "okay";
+    execution-memory = <&softusb_flpr_ram>;
+    source-memory = <&softusb_flpr_flash>;
+};
+/* Never let flash/pinctrl claim the provisional bench pins. */
+&spi00 { status = "disabled"; };
+&pwm20 { status = "disabled"; };
+/* Reserve P1.04..07 + P1.11/12 for future app-core PD control. */
+&uart20 { status = "disabled"; };
+&uart30 { status = "okay"; };
+/ {
+    chosen {
+        zephyr,console = &uart30;
+        zephyr,shell-uart = &uart30;
+        zephyr,uart-mcumgr = &uart30;
+        zephyr,bt-mon-uart = &uart30;
+        zephyr,bt-c2h-uart = &uart30;
+    };
+};

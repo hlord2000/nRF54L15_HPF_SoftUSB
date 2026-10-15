@@ -11,7 +11,7 @@ physical RX loopback, host connection or enumeration has been verified.**
 | Independent Python differential, seed `0x5415` | 28,631 packets; 16,096 malformed inputs; 14,287 CRC vectors; 80 capacity cases | Pass |
 | Zephyr `native_sim/native/64` | 1/1 executed configuration; 2/2 executed ztest cases; zero warnings | Pass |
 | Capture analysis tools | 5 offline synthetic tests, including invalid/empty decode rejection and SYNC frequency-offset measurement | Pass, tooling only |
-| NCS app/FLPR strict build | Both final ELF links appear in build02 log; helper acceptance review pending | Pending final report |
+| NCS app/FLPR strict build | App + FLPR sysbuild exit 0; frozen HRT assembly unchanged with developer mode off; all 20 recorded source and 6 artifact hashes match | Pass, build only |
 | Real LS packet TX and Saleae decode | No acquisition performed | Pending hardware |
 | Independent physical RX-pad loopback | Known-schedule sample engine implemented; no wires/capture verified | Pending hardware |
 | Asynchronous USB RX / response turnaround | No asynchronous hardware receiver | Not implemented |
@@ -38,6 +38,27 @@ renaming its suite to `softusb_portable` resolved it without copying assertions.
 Watcher timeout notifications were followed by normal exit reports; no duplicate
 jobs or lock bypasses were used. Each heavy job used the machine-wide `bend`
 queue with an 8 GiB/400% systemd scope and at most four build workers.
+
+Firmware evidence: [build-status.json](../firmware/build-evidence/build-status.json),
+[strict build log](../firmware/build-evidence/build-02-strict.log), and HRT
+[TX disassembly](../firmware/build-evidence/hrt-tx-disassembly.txt). Work
+`w-t1792083659-131479-133159` exited 0. The strict log says
+`File hrt-nrf54l15.s has not changed.` `CONFIG_HPF_DEVELOPER_MODE=n` is verified.
+The build emits one SDK deprecation warning for `NRF_PLATFORM_LUMOS`; it does
+not prevent the build. The earlier app HFXO device-link issue was resolved by
+using the nRF54L HF-clock onoff manager.
+
+| Image | Linked usage | Configured region |
+| --- | --- | --- |
+| App code | 62,532 bytes | 1,428 KiB RRAM from 0x00000000 |
+| App RAM | 17,664 bytes | 144 KiB from 0x20000000 |
+| Shared IPC reservation | 16 KiB reserved | 0x20024000–0x20027fff |
+| FLPR RAM | 7,264 bytes | 96 KiB from 0x20028000 |
+
+FLPR entry is 0x20028000; its source image loads at 0x00165000. HEX checksums,
+address ranges and image nonoverlap were checked. Images remain under ignored
+`firmware/build/{firmware,softusb_flpr}/zephyr/`. Build success establishes no
+pad timing, startup, IPC runtime or USB interoperability result.
 
 ## Pending hardware measurements
 

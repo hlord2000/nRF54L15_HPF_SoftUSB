@@ -8,7 +8,7 @@ The repository contains a portable packet codec and transaction simulator,
 independent Python reference tests, a Zephyr native_sim ztest wrapper, an
 application-core/FLPR HPF bench fixture, and Python-only Saleae MSO capture tools.
 Native, sanitizer, Python differential and native_sim protocol tests pass;
-firmware acceptance review is pending. Consult [actual results](docs/RESULTS.md)
+the strict app-core + FLPR firmware build also passes. Consult [actual results](docs/RESULTS.md)
 for evidence and hardware limitations. Source implementation is not hardware validation.
 
 **No firmware has been flashed and no physical loopback or USB host operation
