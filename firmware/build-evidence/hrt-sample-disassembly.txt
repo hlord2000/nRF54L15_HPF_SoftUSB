@@ -1,0 +1,48 @@
+
+firmware/build/softusb_flpr/zephyr/zephyr.elf:     file format elf32-littleriscv
+
+
+Disassembly of section rom_start:
+
+Disassembly of section reset:
+
+Disassembly of section text:
+
+200285f0 <bench_hrt_tx_sample>:
+200285f0:	00052283          	lw	t0,0(a0)
+200285f4:	0102d313          	srli	t1,t0,0x10
+200285f8:	7d331073          	csrw	0x7d3,t1
+200285fc:	7d531073          	csrw	0x7d5,t1
+20028600:	bc029073          	csrw	0xbc0,t0
+20028604:	00000013          	nop
+20028608:	00000013          	nop
+2002860c:	00000013          	nop
+20028610:	00000013          	nop
+20028614:	00000013          	nop
+20028618:	00000013          	nop
+2002861c:	00000013          	nop
+20028620:	00000013          	nop
+20028624:	00000013          	nop
+20028628:	00000013          	nop
+2002862c:	00000013          	nop
+20028630:	00000013          	nop
+20028634:	00000013          	nop
+20028638:	00000013          	nop
+2002863c:	00000013          	nop
+20028640:	00000013          	nop
+20028644:	bc202373          	csrr	t1,0xbc2
+20028648:	00661023          	sh	t1,0(a2)
+2002864c:	00260613          	addi	a2,a2,2
+20028650:	fff58593          	addi	a1,a1,-1
+20028654:	02058063          	beqz	a1,20028674 <bench_hrt_tx_sample+0x84>
+20028658:	00450513          	addi	a0,a0,4
+2002865c:	00052283          	lw	t0,0(a0)
+20028660:	0102d313          	srli	t1,t0,0x10
+20028664:	7d331073          	csrw	0x7d3,t1
+20028668:	7da01073          	csrw	0x7da,zero
+2002866c:	bc029073          	csrw	0xbc0,t0
+20028670:	f95ff06f          	j	20028604 <bench_hrt_tx_sample+0x14>
+20028674:	7da01073          	csrw	0x7da,zero
+20028678:	bc101073          	csrw	0xbc1,zero
+2002867c:	7d501073          	csrw	0x7d5,zero
+20028680:	8082                	ret
