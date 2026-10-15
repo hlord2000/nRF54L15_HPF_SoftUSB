@@ -1,0 +1,2 @@
+# MSO preview; do not replace with the older PyPI stable release.
+logic2-automation @ https://downloads.saleae.com/logic_automation_server/407561e0/logic2_automation-1.2.0-py3-none-manylinux_2_27_x86_64.whl
