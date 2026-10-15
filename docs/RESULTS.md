@@ -9,7 +9,7 @@ has been verified.** Hardware entries below are pending, not passes.
 | Saleae MSO presence | USB21a9:1007; saved server log sees device | Detected, not acquisition-ready |
 | MSO firmware | Installed1.0.52; preview407561e0 requires1.0.54; wall power unavailable in saved log | Blocked; see AUTOMATION.md |
 | DK connection and supply | No DK shown in takeover lsusb; no connected confirmation | Pending user |
-| Portable protocol codec | C codec implemented; native/sanitizer/Python differential job queued | Validation pending |
+| Portable protocol codec | Initial native O2 run: 417,547 checks passed; sanitizer build exposed a CRC5 sign-conversion warning, now fixed with explicit unsigned promotion; sanitizer/reference continuation queued | Native pass; remaining validation pending |
 | Device transaction simulation | C simulation implemented; shared native/ztest assertion suites prepared | Validation pending |
 | NCS app/FLPR build | HPF TX and known-schedule external-pad sample fixture implemented; first sysbuild queued | Build/runtime validation pending |
 | Capture analysis tool tests | Five offline synthetic unit tests pass; includes malformed/empty decode rejection and SYNC frequency-offset measurement | Pass, tooling only |
@@ -36,3 +36,10 @@ The first firmware compile uses HPF developer mode only to generate the initial
 HRT assembly. Firmware acceptance additionally requires installing/freezing the
 SoC assembly snapshot, setting `CONFIG_HPF_DEVELOPER_MODE=n`, and passing the
 strict assembly-check rebuild. Neither stage has yet returned a result.
+
+Initial host-run evidence: `w-t1792083644-131411-132105` passed the native
+417,547-check executable, then stopped at sanitizer compilation because strict
+`-Werror=sign-conversion` rejected an integer promotion in CRC5. This was a
+compile-time diagnostic, not an ASan/UBSan runtime finding. The explicit
+unsigned-promotion fix is awaiting sanitizer/reference continuation; no
+sanitizer or differential pass has been claimed.
