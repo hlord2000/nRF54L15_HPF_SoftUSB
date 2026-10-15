@@ -1,0 +1,4 @@
+Running as unit: run-p2132167-i23112697.scope; invocation ID: 13ee4b1b093049948b0473f6fe1da97e
+softusb native: 417547 checks passed
+warning: `--no-sync` has no effect when used alongside `--no-project`
+softusb differential: seed=0x5415; 28631 packets, 16096 malformed, 14287 crc_vectors, 80 capacity

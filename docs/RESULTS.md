@@ -1,65 +1,74 @@
 # Validation results
 
-Date: 2026-10-15. Target: NCS v3.4.1, nRF54L15-DK, HPF FLPR.
-**No hardware capture, flash, physical RX loopback, host connection or enumeration
-has been verified.** Hardware entries below are pending, not passes.
+Checked 2026-10-15. Target: NCS v3.4.1, nRF54L15-DK, HPF FLPR.
+**All passing results below are software tests. No flash, hardware capture,
+physical RX loopback, host connection or enumeration has been verified.**
 
-| Check | Evidence/result | Status |
-|---|---|---|
-| Saleae MSO presence | USB21a9:1007; saved server log sees device | Detected, not acquisition-ready |
-| MSO firmware | Installed1.0.52; preview407561e0 requires1.0.54; wall power unavailable in saved log | Blocked; see AUTOMATION.md |
-| DK connection and supply | No DK shown in takeover lsusb; no connected confirmation | Pending user |
-| Portable protocol codec | Initial native O2 run: 417,547 checks passed; sanitizer build exposed a CRC5 sign-conversion warning, now fixed with explicit unsigned promotion; sanitizer/reference continuation queued | Native pass; remaining validation pending |
-| Device transaction simulation | C simulation implemented; shared native/ztest assertion suites prepared | Validation pending |
-| NCS app/FLPR build | First build linked FLPR; app link failed on incompatible HFXO device API. Switched to legacy HF onoff manager; HRT snapshot installed and developer mode disabled; strict rebuild queued | Full build/runtime validation pending |
-| Capture analysis tool tests | Five offline synthetic unit tests pass; includes malformed/empty decode rejection and SYNC frequency-offset measurement | Pass, tooling only |
-| LS bit rate | Target1.5Mbit/s, nominal666.667ns/bit; device rate tolerance±1.5% | Not measured |
-| FS bit rate | Target12Mbit/s, nominal83.333ns/bit; source rate tolerance±0.25% | Not measured; experimental |
-| Bit interval jitter / accumulated phase | Requires captured SYNC and packet windows, quantified sample/timebase error | Not measured |
-| Rise/fall / differential crossover | Requires analog captures at sufficient resolution and specified USB load | Not measured |
-| Packet TX CRC/stuffing/SYNC/EOP | Requires expected fixtures vs Saleae analyzer export | Not measured |
-| RX through second physical pair | Requires jumper loopback + real RX engine | Pending |
-| Device response turnaround | Requires real RX/TX engine plus sync markers | Not measured |
-| Concurrent PD | Architecture/resource reservation only; no PD implementation | Planned |
-| Host mode | Feasibility study, no operational host | Stretch |
+| Check | Actual result | Status |
+| --- | --- | --- |
+| Optimized native C suite | 417,547 checks | Pass |
+| ASan + UBSan C suite | 417,547 checks after explicit unsigned CRC5 promotion fix | Pass |
+| Independent Python differential, seed `0x5415` | 28,631 packets; 16,096 malformed inputs; 14,287 CRC vectors; 80 capacity cases | Pass |
+| Zephyr `native_sim/native/64` | 1/1 executed configuration; 2/2 executed ztest cases; zero warnings | Pass |
+| Capture analysis tools | 5 offline synthetic tests, including invalid/empty decode rejection and SYNC frequency-offset measurement | Pass, tooling only |
+| NCS app/FLPR strict build | Both final ELF links appear in build02 log; helper acceptance review pending | Pending final report |
+| Real LS packet TX and Saleae decode | No acquisition performed | Pending hardware |
+| Independent physical RX-pad loopback | Known-schedule sample engine implemented; no wires/capture verified | Pending hardware |
+| Asynchronous USB RX / response turnaround | No asynchronous hardware receiver | Not implemented |
+| Concurrent PD | App-core SERIAL21/P1 resource reservation and external-controller architecture | Planned only |
+| USB host | Token/SOF codec fixtures available; no operational host | Stretch |
 
-Rate tolerance does not replace jitter, turnaround, voltage, rise/fall, loading,
-or receiver requirements. Consult [RESEARCH.md](RESEARCH.md) for specification
-references and the feasibility analysis. Unit-test pass counts must not be
-presented as real-bus compliance.
+Native, sanitizer, differential and ztest suites cover portable NRZI/stuffing,
+PID/CRC, framing/error handling, buffer bounds and simulated LS transactions.
+They do not establish electrical or timing compliance, a live USB device stack,
+or enumeration. The Python reference uses a separate MSb-first CRC formulation
+from the C codec's reflected register implementation.
 
-Zephyr wrapper prepared under `tests/zephyr/`: two ztest cases reuse the native
-C assertion bodies. Root queued Twister `native_sim/native/64` through the bend
-lock and8GiB/400% systemd scope. Result pending; queued is not passed.
+Evidence is retained in [host-validation.log](evidence/host-validation.log) and
+[native-sim-validation.log](evidence/native-sim-validation.log). Original work
+IDs are `w-t1792083644-131411-132105` (initial optimized native run),
+`w-t1792083644-131411-132915` (sanitizer/reference continuation), and
+`w-t1792082209-129711-133140` (native_sim retry). Full Twister reports and runtime
+log remain under ignored `tests/.build/twister-retry1/`.
 
-The first firmware compile uses HPF developer mode only to generate the initial
-HRT assembly. Firmware acceptance additionally requires installing/freezing the
-SoC assembly snapshot, setting `CONFIG_HPF_DEVELOPER_MODE=n`, and passing the
-strict assembly-check rebuild. Neither stage has yet returned a result.
+The initial sanitizer compilation rejected an integer promotion under
+`-Werror=sign-conversion`; explicit unsigned operands resolved it. The first
+ztest wrapper generated a symbol colliding with the exported shared suite;
+renaming its suite to `softusb_portable` resolved it without copying assertions.
+Watcher timeout notifications were followed by normal exit reports; no duplicate
+jobs or lock bypasses were used. Each heavy job used the machine-wide `bend`
+queue with an 8 GiB/400% systemd scope and at most four build workers.
 
-Initial host-run evidence: `w-t1792083644-131411-132105` passed the native
-417,547-check executable, then stopped at sanitizer compilation because strict
-`-Werror=sign-conversion` rejected an integer promotion in CRC5. This was a
-compile-time diagnostic, not an ASan/UBSan runtime finding. The explicit
-unsigned-promotion fix is awaiting sanitizer/reference continuation; no
-sanitizer or differential pass has been claimed.
+## Pending hardware measurements
 
-Native_sim first run `w-t1792082209-129711-132190` exited1 at compilation:
-`ZTEST(softusb, test_codec)` generated a static `softusb_test_codec` symbol
-that collided with the exported shared suite body. No ztest cases executed.
-Renamed the ztest suite to `softusb_portable`, preserving the shared assertions;
-one rebuild is queued. The earlier watcher timeout was followed by a normal
-exit report; no duplicate run or lock bypass was used.
+| Measurement | Target / required evidence | Actual |
+| --- | --- | --- |
+| LS bit rate | 1.5 Mbit/s, nominal 666.667 ns/bit; device source-rate tolerance ±1.5% | Not measured |
+| FS bit rate | 12 Mbit/s, nominal 83.333 ns/bit; device source-rate tolerance ±0.25% | Not measured; experimental |
+| Bit interval / accumulated phase / crossover jitter | Packet and SYNC windows, independent timebase and uncertainty | Not measured |
+| Rise/fall, voltage, crossover and skew | Analog capture with stated probe/load and adequate bandwidth | Not measured |
+| EOP and output release | First/last-cell phase, SE0 duration and direction-release timing | Not measured |
+| Receive-to-reply delay | Actual asynchronous RX, validation and bounded response | Not measured |
+| App-core PD coexistence | Representative controller IRQ/DMA load while FLPR runs | Not measured |
 
-Firmware first build: FLPR linked; app-core HFXO device reference did not link.
-The nRF54L implementation now requests HF through
-`z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF)` and
-`onoff_request()`. Generated HRT assembly was reviewed and installed with
-the NCS helper; developer mode is now disabled. Strict build02 result pending.
+FS 128 MHz 10/11/11-cell scheduling already fails the naive source-jitter budget
+on its 10-cycle cell, despite the correct mean rate. LS is the primary target.
+Rate tolerance does not replace jitter, turnaround or analog requirements.
+See [RESEARCH.md](RESEARCH.md) for specification references and limitations.
 
-Hardware reservation update: Bub assigned both attached DKs (debugger serials
-`1057720622` and `1057776754`) and the Android phone to another BLE project.
-SoftUSB holds no debug/serial sessions and has no queued hardware job to cancel.
-Only software build/test jobs remain queued. No flash/reset/debug/serial access
-is permitted until that ownership is explicitly released; the first-flash
-`connected` interlock still applies afterward. Saleae was not stopped.
+## Hardware ownership and prerequisites
+
+Bub reserved both attached DKs (debugger serials `1057720622` and `1057776754`)
+and the Android phone for another BLE project. SoftUSB holds no debug/serial
+sessions and has no hardware job to cancel. **No flash/reset/debug/serial access
+is permitted until ownership is explicitly released.** The revision-matched
+wiring, measured 3.3 V VDDIO, header routing and explicit user `connected`
+confirmation remain required afterward. Physical PCA10156 revision is unknown.
+The earlier takeover USB list did not identify a DK; the serials above are from
+Bub's later reservation, not a SoftUSB hardware session.
+
+The Saleae MSO was USB-visible (`21a9:1007`). Saved server log `/tmp/las.log`
+reports firmware 1.0.52 versus preview407561e0's required 1.0.54, plus unavailable
+wall power. No later firmware/power state has been checked. Headless API cannot
+perform that update; see [AUTOMATION.md](AUTOMATION.md). Saleae and unrelated
+hardware were not stopped.

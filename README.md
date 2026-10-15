@@ -7,8 +7,9 @@ The current goal is packet correctness before USB enumeration.
 The repository contains a portable packet codec and transaction simulator,
 independent Python reference tests, a Zephyr native_sim ztest wrapper, an
 application-core/FLPR HPF bench fixture, and Python-only Saleae MSO capture tools.
-Build and protocol test jobs are queued; consult [actual results](docs/RESULTS.md)
-for their outcomes. Source implementation is not hardware validation.
+Native, sanitizer, Python differential and native_sim protocol tests pass;
+firmware acceptance review is pending. Consult [actual results](docs/RESULTS.md)
+for evidence and hardware limitations. Source implementation is not hardware validation.
 
 **No firmware has been flashed and no physical loopback or USB host operation
 has been verified.** The physical DK revision and measured IO voltage are

@@ -1,0 +1,11 @@
+tests:
+  softusb.portable.codec_transactions:
+    platform_allow:
+      - native_sim/native/64
+    integration_platforms:
+      - native_sim/native/64
+    tags:
+      - usb
+      - softusb
+    harness: ztest
+    timeout: 120
