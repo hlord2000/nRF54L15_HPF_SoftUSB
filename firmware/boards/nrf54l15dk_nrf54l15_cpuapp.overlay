@@ -57,3 +57,27 @@
         zephyr,bt-c2h-uart = &uart30;
     };
 };
+
+&cpuapp_vevif_rx { status = "okay"; };
+
+/ {
+    zephyr_udc0: softusb_udc {
+        compatible = "nordic,softusb-udc";
+        mboxes = <&cpuapp_vevif_rx 20>;
+        mbox-names = "rx";
+        status = "okay";
+    };
+
+    /* Vendor-defined HID: harmless to the host (no keys, no pointer). LS
+     * limits: 8-byte reports, interrupt endpoints polled every 10 ms.
+     */
+    hid_dev_0: hid_dev_0 {
+        compatible = "zephyr,hid-device";
+        label = "SoftUSB HID";
+        protocol-code = "none";
+        in-report-size = <8>;
+        in-polling-period-us = <10000>;
+        out-report-size = <8>;
+        out-polling-period-us = <10000>;
+    };
+};

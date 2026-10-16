@@ -1,0 +1,6 @@
+Oct 16 14:47:50 desktop kernel: usb 1-5.1.1.2: new low-speed USB device number 109 using xhci_hcd
+Oct 16 14:47:50 desktop kernel: usb 1-5.1.1.2: New USB device found, idVendor=2fe3, idProduct=0100, bcdDevice= 4.04
+Oct 16 14:47:50 desktop kernel: usb 1-5.1.1.2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Oct 16 14:47:50 desktop kernel: usb 1-5.1.1.2: Product: nRF54L15 FLPR LS HID
+Oct 16 14:47:50 desktop kernel: usb 1-5.1.1.2: Manufacturer: HPF SoftUSB
+Oct 16 14:47:50 desktop kernel: hid-generic 0003:2FE3:0100.000A: hiddev6,hidraw9: USB HID v1.11 Device [HPF SoftUSB nRF54L15 FLPR LS HID] on usb-0000:0e:00.0-5.1.1.2/input0

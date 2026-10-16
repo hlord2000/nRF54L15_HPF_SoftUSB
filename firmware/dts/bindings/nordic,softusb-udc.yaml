@@ -1,0 +1,8 @@
+description: |
+  SoftUSB low-speed USB device controller. The bus is bit-banged on P2.00 (D+)
+  and P2.01 (D-) by an HPF personality on the FLPR core; the app core runs the
+  Zephyr UDC driver. mboxes must name the FLPR->app VEVIF event as "rx".
+
+compatible: "nordic,softusb-udc"
+
+include: base.yaml

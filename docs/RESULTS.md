@@ -101,3 +101,18 @@ Setup: DK `1057720622`, VDD 3.3 V (user-set), onboard flash routing disabled (us
 Result: the host **does** detect a low-speed attach with only the nRF internal pull-up on D-. Every cycle shows `new low-speed USB device`, then `device descriptor read/64, error -32` and `Device not responding to setup address` / `error -71` (expected: nothing answers yet), then `unable to enumerate USB device`. Log: [evidence/attach-test-dmesg-2026-10-16.log](evidence/attach-test-dmesg-2026-10-16.log).
 
 Caveat: this is below the USB 2.0 guarantee (internal pull ~12-18 kOhm vs. 15 kOhm host pull-down gives ~1.5-1.8 V, under the 2.0 V VIH). It works on this hub; other hosts may not detect it. D- voltage was not measured (Saleae not attached).
+
+## Hardware: enumeration on a real host through the Zephyr USB stack (2026-10-16, measured)
+
+Firmware: `firmware/` (FLPR LS link-layer engine + app-core Zephyr UDC driver `udc_softusb` + stock `device_next` stack with a vendor-defined HID class). Same wiring as the attach test: P2.00 = D+, P2.01 = D- straight to the PC hub port, no resistors, internal pull-up on D-.
+
+Result: **Linux enumerates the device as a low-speed USB HID** (`New USB device found, idVendor=2fe3, idProduct=0100`, `hid-generic ... hidraw9: USB HID v1.11 Device [HPF SoftUSB nRF54L15 FLPR LS HID]`). Descriptors read back by `lsusb -v`: bcdUSB 1.10, bMaxPacketSize0 8, EP1 IN/OUT interrupt, wMaxPacketSize 8, bInterval 10. FLPR counters after enumeration: 86 tokens, 13 SETUPs, 40 IN ACKed, 0 CRC / stuffing / sync errors, 0 IN retries. Evidence: [enumeration-dmesg](evidence/enumeration-dmesg-2026-10-16.log), [lsusb -v](evidence/enumeration-lsusb-v.txt).
+
+Bring-up findings (all measured on this DK):
+- With only the internal pull-up, idle D- sits below the nRF VIH (reads 0), so idle J and SE0 are indistinguishable to the FLPR. Bus reset is therefore inferred from >3 ms of silence followed by traffic; host-driven J/K levels read correctly.
+- `mcycle` does not count on the FLPR; time comes from VTIM CNT1 in WRAP mode (extended to 32 bits).
+- VTIM RELOAD period is TOP+1 cycles: measured 25502 cycles for 300 periods at TOP=84 (85.007).
+- Without an HFXO request the FLPR clock measured ~129.0 MHz (+0.8%): tokens (32 bits) decoded but 96-bit DATA packets failed CRC. With HFXO requested by the app it measures 128.0 MHz and data packets decode cleanly.
+- `nrfutil ... reset=RESET_SYSTEM` does not restart the FLPR; a pin reset is needed after flashing (`tools/flash_run.sh`).
+
+Not yet verified: interrupt IN/OUT data transfers (needs hidraw access), timing/eye on the Saleae, other hosts.
