@@ -7,8 +7,8 @@ if [[ ${1:-} != --scoped-worker ]]; then
         "$0" --scoped-worker "$@"
 fi
 shift
-sdk_root=/home/h/ncs/v3.4.1
-toolchain_root=/home/h/ncs/toolchains/8285d8ad56
+sdk_root=${NCS_ROOT:-/home/h/ncs/v3.4.1}
+toolchain_root=${NCS_TOOLCHAIN:-/home/h/ncs/toolchains/8285d8ad56}
 # Nordic's toolchain manifest provides the exact bundled Python and SDK paths.
 eval "$(python3 - "$toolchain_root" <<'PY'
 import json, os, shlex, sys

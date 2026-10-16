@@ -12,4 +12,4 @@
 - Use Saleae Python automation only for captures/decoding/export. Headless MSO preview407561e0 needs MSO firmware1.0.54; installed device1.0.52 at takeover. The headless API cannot update it; the user was asked to do that one GUI setup action and close Logic2.
 - One heavy build/test job machine-wide, only Backplane `work_run` with lock `bend`. Wrap firmware builds with `systemd-run --user --scope -p MemoryMax=8G -p CPUQuota=400%`, modest `-j4`. Never use the linked remote machine with faulty RAM.
 - Do not report synthetic test output as measured hardware results. Keep `docs/RESULTS.md` explicit about pending hardware checks.
-- Keep local Git commits, using the configured hlord2000 identity. Do not push.
+- Commit with the configured hlord2000 identity. Remote: github.com/hlord2000/nRF54L15_HPF_SoftUSB (user asked to publish 2026-10-16); push only finished, tested work.
