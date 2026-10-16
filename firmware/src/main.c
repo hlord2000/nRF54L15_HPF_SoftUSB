@@ -45,6 +45,7 @@ static uint8_t echo[8];
 static volatile bool echo_pending;
 static volatile bool hid_ready;
 static K_SEM_DEFINE(report_done, 1, 1);
+static K_SEM_DEFINE(echo_sem, 0, 1);
 
 static void iface_ready(const struct device *dev, const bool ready)
 {
@@ -69,6 +70,7 @@ static void output_report(const struct device *dev, const uint16_t len,
 {
 	memcpy(echo, buf, MIN(len, sizeof(echo)));
 	echo_pending = true;
+	k_sem_give(&echo_sem);
 	LOG_INF("OUT report %02x %02x %02x %02x %02x %02x %02x %02x", echo[0], echo[1],
 		echo[2], echo[3], echo[4], echo[5], echo[6], echo[7]);
 }
@@ -148,8 +150,8 @@ int main(void)
 	uint32_t last_stats = k_uptime_get_32();
 
 	while (true) {
-		k_msleep(echo_pending ? 1 : 500);
-		if (hid_ready && k_sem_take(&report_done, K_NO_WAIT) == 0) {
+		(void)k_sem_take(&echo_sem, K_MSEC(500));
+		if (hid_ready && k_sem_take(&report_done, K_MSEC(100)) == 0) {
 			if (echo_pending) {
 				memcpy(in_report, echo, sizeof(echo));
 				echo_pending = false;

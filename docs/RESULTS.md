@@ -116,3 +116,17 @@ Bring-up findings (all measured on this DK):
 - `nrfutil ... reset=RESET_SYSTEM` does not restart the FLPR; a pin reset is needed after flashing (`tools/flash_run.sh`).
 
 Not yet verified: interrupt IN/OUT data transfers (needs hidraw access), timing/eye on the Saleae, other hosts.
+
+## Hardware: interrupt data path and reconnects (2026-10-16, measured)
+
+Host access via a udev rule (user-installed) for 2fe3:0100 hidraw. Tool: `tools/hid_echo_test.py` (random 8-byte OUT report, firmware echoes it as the next IN report).
+
+| Test | Result |
+|---|---|
+| Periodic IN reports | counter 1,2,3,4 received in order |
+| OUT->IN echo, dev-mode HRT | 500/500 ok, 0 mismatched, 0 lost; RTT min 5.2 / avg 8.2 / max 96 ms |
+| OUT->IN echo, frozen HRT strict build | 300/300 ok; RTT avg 8.3 ms |
+| Pin-reset reconnect + 50 echoes each (`tools/reconnect_test.sh`) | 5/5 then 3/3 pass; each enumerated first try, 0 kernel `error -` lines |
+| FLPR counters after a test | 430 tokens, 96 IN ACKed, 0 IN retries, 0 CRC/stuff/sync errors |
+
+RTT ~8 ms is consistent with the 10 ms bInterval on both endpoints. Bit timing, jitter, edge rates and levels still need the Saleae (pending MSO firmware update and probe access).
