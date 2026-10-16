@@ -1,5 +1,7 @@
 # SoftUSB project agreements
 
+- 2026-10-16 user decision: user wired DK `1057720622` P2.00 (D+) / P2.01 (D-) DIRECTLY to a USB breakout on this PC (no resistors, VBUS not to DK) and said "go ahead and try". This releases that DK for SoftUSB host-attach experiments; first test is `firmware/attach_test` (internal pull-up on D- only, pins input-only). Saleae is not attached for now. DK `1057776754` stays reserved for BLE. Bub informed.
+
 - Hardware reservation (Bub, 2026-10-15): DK debugger serials `1057720622` and `1057776754`, plus the Android phone, belong exclusively to the new closed-loop BLE project. Do not flash/reset either DK or open exclusive debug/serial sessions. Continue software/research only until that ownership is explicitly released. A `connected` reply alone does not override this reservation. Do not stop Saleae or unrelated hardware. SoftUSB held no debug/serial sessions or queued hardware jobs at handoff.
 
 - Read `/home/h/.codex/AGENTS.md` and preserve the user's original hardware interlocks.

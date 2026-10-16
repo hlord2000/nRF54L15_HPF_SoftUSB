@@ -1,0 +1,2 @@
+/* Keep the onboard SPI flash driver off so nothing else drives P2.00..05. */
+&spi00 { status = "disabled"; };
