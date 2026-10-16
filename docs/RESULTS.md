@@ -93,3 +93,11 @@ reports firmware 1.0.52 versus preview407561e0's required 1.0.54, plus unavailab
 wall power. No later firmware/power state has been checked. Headless API cannot
 perform that update; see [AUTOMATION.md](AUTOMATION.md). Saleae and unrelated
 hardware were not stopped.
+
+## Hardware: host attach detect with internal pull-up only (2026-10-16, measured)
+
+Setup: DK `1057720622`, VDD 3.3 V (user-set), onboard flash routing disabled (user). P2.00 = D+ and P2.01 = D- wired directly to a USB breakout on this PC's hub port `1-5.1.1-port2`. No external resistors; VBUS not connected to the DK. Firmware `firmware/attach_test`: both pins input-only; P2.01 internal pull-up on for 10 s, off for 2 s.
+
+Result: the host **does** detect a low-speed attach with only the nRF internal pull-up on D-. Every cycle shows `new low-speed USB device`, then `device descriptor read/64, error -32` and `Device not responding to setup address` / `error -71` (expected: nothing answers yet), then `unable to enumerate USB device`. Log: [evidence/attach-test-dmesg-2026-10-16.log](evidence/attach-test-dmesg-2026-10-16.log).
+
+Caveat: this is below the USB 2.0 guarantee (internal pull ~12-18 kOhm vs. 15 kOhm host pull-down gives ~1.5-1.8 V, under the 2.0 V VIH). It works on this hub; other hosts may not detect it. D- voltage was not measured (Saleae not attached).
